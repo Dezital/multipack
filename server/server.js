@@ -348,11 +348,13 @@ app.prepare().then(async () => {
       console.log("errro in fullfilment");
     }
 
+    currnetday="today"
+    lastday="yesterday"
     pool_multipack.getConnection((err, connection) => {
       if (err) throw err;
       // console.log(`connected as id ${connection.threadId}`);
       let stmt = `INSERT INTO multipack(multipack_name,multipack_id,multipack_price,multipack_img,multipack_qty,multipack_varient_id,multipack_varient_sku,multipack_varient_barcode,multipack_varient_weight,product_id,product_varient_id,product_varient_quantity,product_varient_sku,created_at,updated_at,product_name,product_varient_price,product_varient_weight)
-       VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?.?,?,?)`;
+       VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
       let todo = [
         multipackname,
         Newmultipackid,
@@ -367,8 +369,8 @@ app.prepare().then(async () => {
         multipackbarcode,
         OriginalProductquantity,
         OriginalProductSku,
-        "toady",
-        "yesterday",
+      currentday,
+        lastday,
         product_name,
         product_varient_price,
         `${product_varient_weight}`
