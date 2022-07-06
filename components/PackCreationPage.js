@@ -28,7 +28,7 @@ function PackCreationPage(productdata,{setLoadingd}) {
   const [isLoading, setIsLoading] = useState(false);
   const [isShowProductData, setIShowProductData] = useState(false);
 
-  const [multipackquantity,setMultipackQuantity] =useState();
+  const [totalmultipackquantity,settoatlMultipackQuantity] =useState();
   const [multipackName,setMultipackName]= useState()
   const [multipackprice,setMultipackPrice]=useState()
   const [multipackdiscription,setMultipackDiscription] =useState()
@@ -41,8 +41,8 @@ function PackCreationPage(productdata,{setLoadingd}) {
   const handleFomSubmission = () => {
     let nw = productdata.productdata.variants[0].inventoryQuantity / quantityofMultipack;
     nw= Math.ceil(nw);
-    setQuantityOfMultipacks(`${nw}`)
-    setMultipackQuantity(`${nw}`)
+   
+    settoatlMultipackQuantity(`${nw}`)
     let multipacktitle = productdata.productdata.title + `-${quantityofMultipack}Packs`;
     setMultipackName(multipacktitle);
     let multipackpaisa = productdata.productdata.variants[0].price * nw;
@@ -140,6 +140,7 @@ function PackCreationPage(productdata,{setLoadingd}) {
       multipackSku={multipackSku}
       productdata={productdata}
       quantityofMultipack={quantityofMultipack}
+      totalmultipackquantity={totalmultipackquantity}
       setLoadingd={setLoadingd}
       ></FinalProductShow>
       ) : (

@@ -26,6 +26,7 @@ function FinalProductShow({
   multipackSku,
   productdata,
   quantityofMultipack,
+  totalmultipackquantity,
   setLoadingd,
 }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +40,7 @@ function FinalProductShow({
 
   const createMultipack = async () => {
     setIsLoading(true);
-    let multipackquantity = quantityofMultipack;
+    let multipackquantity = totalmultipackquantity;
     let multipackimg = productdata.productdata.images[0].originalSrc.split(
       "?v="
     )[0];
@@ -146,7 +147,7 @@ function FinalProductShow({
 
                   <div className="Input-fieds-child">
                     <TextField
-                      value={quantityofMultipack}
+                      value={totalmultipackquantity}
                       onChange={() => {
                         "";
                       }}
