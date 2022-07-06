@@ -234,6 +234,7 @@ app.prepare().then(async () => {
       .OrginalProductVarientId;
     const OriginalProductSku=JSON.parse(ctx.request.body)
     .OriginalProductSku;
+    const totalqunatityofmultipacks= JSON.parse(ctx.request.body).totalqunatityofmultipacks;
 
     var Newmultipackid;
     let NewProductVarientId;
@@ -309,7 +310,7 @@ app.prepare().then(async () => {
                       data: {
                         location_id: StoreLocaction,
                         inventory_item_id: NewProductVarinetInventoryId,
-                        available: multipackquantity,
+                        available: totalqunatityofmultipacks,
                       },
                       type: DataType.JSON,
                     })
@@ -353,9 +354,10 @@ app.prepare().then(async () => {
     pool_multipack.getConnection((err, connection) => {
       if (err) throw err;
       // console.log(`connected as id ${connection.threadId}`);
-      let stmt = `INSERT INTO multipack(multipack_name,multipack_id,multipack_price,multipack_img,multipack_qty,multipack_varient_id,multipack_varient_sku,multipack_varient_barcode,multipack_varient_weight,product_id,product_varient_id,product_varient_quantity,product_varient_sku,created_at,updated_at,product_name,product_varient_price,product_varient_weight)
-       VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+      let stmt = `INSERT INTO multipack(newtotal_qty,multipack_name,multipack_id,multipack_price,multipack_img,multipack_qty,multipack_varient_id,multipack_varient_sku,multipack_varient_barcode,multipack_varient_weight,product_id,product_varient_id,product_varient_quantity,product_varient_sku,created_at,updated_at,product_name,product_varient_price,product_varient_weight)
+       VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
       let todo = [
+        totalqunatityofmultipacks,
         multipackname,
         Newmultipackid,
         multipackprice,
@@ -473,6 +475,8 @@ app.prepare().then(async () => {
     const multipackid = JSON.parse(ctx.request.body).multipackid;
     const multipackvarientid = JSON.parse(ctx.request.body).multipackvarientid;
 
+    const totalqunatityofmultipacks= JSON.parse(ctx.request.body).totalqunatityofmultipacks;
+
 
     var StoreLocaction;
     var NewProductVarinetInventoryId;
@@ -561,7 +565,7 @@ app.prepare().then(async () => {
           data: {
             location_id: StoreLocaction,
             inventory_item_id: NewProductVarinetInventoryId,
-            available: multipackquantity,
+            available: totalqunatityofmultipacks,
           },
           type: DataType.JSON,
         }).then(({body})=>{

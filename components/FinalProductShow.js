@@ -40,7 +40,7 @@ function FinalProductShow({
 
   const createMultipack = async () => {
     setIsLoading(true);
-    let multipackquantity = totalmultipackquantity;
+    let multipackquantity = quantityofMultipack;
     let multipackimg = productdata.productdata.images[0].originalSrc.split(
       "?v="
     )[0];
@@ -50,6 +50,7 @@ function FinalProductShow({
     );
     let OriginalProductquantity =
       productdata.productdata.variants[0].inventoryQuantity;
+      let totalqunatityofmultipacks =totalmultipackquantity;
 
     let multipackProductType = productdata.productdata.productType;
 
@@ -70,6 +71,7 @@ function FinalProductShow({
     const res = await fetch("/createMultipack", {
       method: "POST",
       body: JSON.stringify({
+        totalqunatityofmultipacks,
         multipackName,
         multipackquantity,
         multipackprice,
