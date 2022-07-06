@@ -348,8 +348,8 @@ app.prepare().then(async () => {
       console.log("errro in fullfilment");
     }
 
-    currnetday="today"
-    lastday="yesterday"
+    var currnetday="today"
+    var lastday="yesterday"
     pool_multipack.getConnection((err, connection) => {
       if (err) throw err;
       // console.log(`connected as id ${connection.threadId}`);
@@ -369,7 +369,7 @@ app.prepare().then(async () => {
         multipackbarcode,
         OriginalProductquantity,
         OriginalProductSku,
-      currentday,
+        currnetday,
         lastday,
         product_name,
         product_varient_price,
