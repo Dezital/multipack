@@ -371,7 +371,7 @@ app.prepare().then(async () => {
         "yesterday",
         product_name,
         product_varient_price,
-        product_varient_weight
+        `${product_varient_weight}`
       ];
 
       // execute the insert statment
