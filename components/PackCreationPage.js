@@ -41,6 +41,7 @@ function PackCreationPage(productdata,{setLoadingd}) {
   const handleFomSubmission = () => {
     let nw = productdata.productdata.variants[0].inventoryQuantity / quantityofMultipack;
     nw= Math.ceil(nw);
+    setQuantityOfMultipacks(`${nw}`)
     setMultipackQuantity(`${nw}`)
     let multipacktitle = productdata.productdata.title + `-${quantityofMultipack}Packs`;
     setMultipackName(multipacktitle);

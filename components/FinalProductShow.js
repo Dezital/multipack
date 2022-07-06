@@ -146,7 +146,7 @@ function FinalProductShow({
 
                   <div className="Input-fieds-child">
                     <TextField
-                      value={multipackquantity}
+                      value={quantityofMultipack}
                       onChange={() => {
                         "";
                       }}
