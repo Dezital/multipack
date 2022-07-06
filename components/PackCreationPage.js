@@ -20,8 +20,8 @@ import { useAppBridge } from "@shopify/app-bridge-react";
 import LoadingSpinner from "./LoadingSpinner";
 import FinalProductShow from "./FinalProductShow";
 
-function PackCreationPage(productdata,setLoadingd) {
-  console.log("",setLoadingd)
+function PackCreationPage(productdata,{setLoadingd}) {
+  console.log("this is loading",setLoadingd)
   const [orders, SetOrders] = useState();
   const [quantityofMultipack, setQuantityOfMultipacks] = useState();
   const [quantityofNewProduct, setQuantityofNewProduct] = useState("0");

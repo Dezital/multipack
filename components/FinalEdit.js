@@ -18,24 +18,88 @@ import { getSessionToken } from "@shopify/app-bridge-utils";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import LoadingSpinner from "./LoadingSpinner";
 
-function FinalProductShow({
-  multipackName,
-  multipackprice,
-  multipackdiscription,
-  multipackweight,
-  multipackSku,
-  productdata,
-  quantityofMultipack,
-  setLoadingd,
+function FinalEdit({
+    productdata,
+  
 }) {
+   
   const [isLoading, setIsLoading] = useState(false);
+  const [updatedmultipackquantity,setUpdatedMultipackQuantity]=useState(`${productdata.multipack_qty}`);
+  const [updatedmultipackname,setUpdatedMultipackname]=useState(productdata.multipack_name);
+  const [updatedmultipacksku,setUpdatedMultipacksku]=useState(`${productdata.multipack_varient_sku}`)
+  const [updatedmultipackprice,setUpdatedMultipackprice]=useState(`${productdata.multipack_price}`);
+  const [updatemultipackWeight,setUpdateMultipackweight]=useState(`${productdata.multipack_varient_weight}`)
+  const [newmultipackqty,setNewMultipackQty]=useState();
+  const [showSubmitbtn,isShowSubmitBtn]=useState(false)
+
   const app = useAppBridge();
 
   //const [multipackSku,setMultipackSku]=useState()
 
-  const handlesubmit = () => {
-    createMultipack();
+  const handleChangeInput = (value) => {
+   
+    setNewMultipackQty(value)
   };
+
+  const handlesubmit = () => {
+    let newWeight= productdata.product_varient_weight*newmultipackqty;
+    console.log(newWeight)
+    setUpdateMultipackweight(`${newWeight}`);
+    let updatedprice= productdata.product_varient_price*newmultipackqty;
+    
+    setUpdatedMultipackprice(`${updatedprice}`);
+    let productsku =productdata.product_varient_sku+`-${newmultipackqty}packs`
+    setUpdatedMultipacksku(`${productsku}`)
+
+    let totalqty=productdata.product_varient_quantity/newmultipackqty;
+   totalqty= Math.ceil(totalqty)
+    setUpdatedMultipackQuantity(`${totalqty}`)
+
+    let newname=productdata.product_name+`-${newmultipackqty}packs`
+    setUpdatedMultipackname(newname)
+
+
+  
+    isShowSubmitBtn(true)
+
+  };
+
+
+  const handleProductuplaod =async ()=>{
+
+    setIsLoading(true);
+    let multipackName=updatedmultipackname;
+    let multipackquantity=updatedmultipackquantity;
+    let multipackprice=updatedmultipackprice;
+    let multipackSku=updatedmultipacksku;
+    let multipackweight=updatemultipackWeight;
+    let multipackid=productdata.multipack_id;
+    let multipackvarientid=productdata.multipack_varient_id;
+
+    
+    console.log("i am good");
+    const token = await getSessionToken(app);
+    const res = await fetch("/updateProduct", {
+      method: "POST",
+      body: JSON.stringify({
+        multipackName,
+        multipackquantity,
+        multipackprice,
+        multipackSku,
+        multipackweight,
+        multipackid,
+        multipackvarientid
+      }),
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-type": "text/plain",
+      },
+    });
+
+    setIsLoading(false);
+   alert("Your Product updated successfully")
+
+  }
 
   const createMultipack = async () => {
     setIsLoading(true);
@@ -55,10 +119,7 @@ function FinalProductShow({
     let multipackBarcode = productdata.productdata.variants[0].barcode;
 
     let multipackweightUnit = productdata.productdata.variants[0].weightUnit;
-      let product_name = productdata.productdata.variants[0].title;
-      let product_varient_price = productdata.productdata.variants[0].price;
-      let product_varient_weight = productdata.productdata.variants[0].weight;
-      let OriginalProductSku =productdata.productdata.variants[0].sku;
+
     let OrginalProductVarientId = productdata.productdata.variants[0].id.replace(
       "gid://shopify/ProductVariant/",
       ""
@@ -82,12 +143,6 @@ function FinalProductShow({
         multipackweight,
         OrginalProductVarientId,
         multipackweightUnit,
-        product_name,
-        product_varient_price,
-        product_varient_weight,
-        OriginalProductSku
-
-
       }),
       headers: {
         Authorization: `Bearer ${token}`,
@@ -96,7 +151,7 @@ function FinalProductShow({
     });
 
     setIsLoading(false);
-   alert("Your Product created Successfully")
+    // setLoadingd(false);
   };
 
   return (
@@ -109,32 +164,41 @@ function FinalProductShow({
         <div></div>
       )}
       <Card sectioned>
+        <div className="topbutton-div">
+            <div className="input-field-of-div">
+        <Form onSubmit={handlesubmit}>
+        <FormLayout>
+      <FormLayout.Group condensed>
+        <TextField label="Enter Pack quantity to update" value={newmultipackqty}onChange={handleChangeInput} autoComplete="off" />
+      </FormLayout.Group>
+    </FormLayout>
+    </Form>
+    </div>
+    <div className="button-div">
+
+    </div>
+        </div>
+
         <div className="New-Product-details">
           <div className="New-Product-Form-Section">
-            <Form onSubmit={handlesubmit}>
+            <Form onSubmit={handleProductuplaod}>
               <FormLayout>
                 {/* {error && (
               <InlineError message={errordata} fieldID="n"></InlineError>
             )} */}
                 <TextField
-                  value={multipackName}
+                  value={updatedmultipackname}
                   onChange={() => {}}
                   label="Title"
                   type="text"
                   required
+                  disabled
                 />
-                <TextField
-                  value={multipackdiscription}
-                  onChange={(handleChangeEmail) => {}}
-                  label="Discription"
-                  type="text"
-                  multiline={4}
-                  disabled="true"
-                />
+              
                 <div className="form-small-layout">
                   <div className="Input-fieds-child">
                     <TextField
-                      value={multipackSku}
+                      value={updatedmultipacksku}
                       onChange={() => {
                         "";
                       }}
@@ -146,7 +210,7 @@ function FinalProductShow({
 
                   <div className="Input-fieds-child">
                     <TextField
-                      value={multipackprice}
+                      value={updatedmultipackquantity}
                       onChange={() => {
                         "";
                       }}
@@ -158,31 +222,36 @@ function FinalProductShow({
 
                   <div className="Input-fieds-child">
                     <TextField
-                      value={multipackprice}
+                      value={updatedmultipackprice}
                       onChange={() => {
                         "";
                       }}
                       label="New Product Price"
-                      type="number"
+                      type="text"
                       disabled
                     />
                   </div>
                   <div className="Input-fieds-child">
                     <TextField
-                      value={multipackweight}
+                      value={updatemultipackWeight}
                       onChange={() => {
                         "";
                       }}
                       label="New Product Weight"
-                      type="number"
+                      type="text"
                       disabled
                     />
                   </div>
                 </div>
-
-                <Button primary submit>
-                  Submit
-                </Button>
+                {showSubmitbtn ==true &&
+                   <div>
+                
+                   <Button primary submit>
+                     Publish
+                   </Button>
+                   </div>
+                }
+             
               </FormLayout>
             </Form>
           </div>
@@ -191,7 +260,7 @@ function FinalProductShow({
             <div className="Img-border">
               <img
                 className="new-product-img"
-                src={productdata.productdata.images[0].originalSrc}
+                src={productdata.multipack_img}
               />
             </div>
           </div>
@@ -201,4 +270,4 @@ function FinalProductShow({
   );
 }
 
-export default FinalProductShow;
+export default FinalEdit;

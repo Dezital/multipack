@@ -92,8 +92,9 @@ function index(props) {
       
       // console.log('3434')
       if (resp.status == "OK") {
-        console.log(resp);
+        // console.log(resp);
         setuserHistoryData(resp.data);
+        store.set("orderdata",resp.data)
       }
     } catch (error) {
      console.log("error",error)
@@ -282,6 +283,7 @@ function index(props) {
         <PackCreationPage
         productdata={productdata}
         setLoadingd={setLoadingd}
+        
 
         >
           

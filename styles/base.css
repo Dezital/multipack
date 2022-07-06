@@ -382,3 +382,13 @@
 .deletebutton:hover{
   cursor: pointer;
 }
+.topbutton-div{
+  display: flex;
+  margin-bottom: 10px;
+}
+.input-field-of-div{
+  flex:2
+}
+.button-div{
+  flex:8
+}

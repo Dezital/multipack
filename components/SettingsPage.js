@@ -9,8 +9,10 @@ import store from "store-js";
 import PartialFormTags from "./PartialFormTags";
 import { getSessionToken } from "@shopify/app-bridge-utils";
 import { useAppBridge } from "@shopify/app-bridge-react";
+import LoadingSpinner from "./LoadingSpinner";
 
 import TopHeader from "./TopHeader";
+import FinalEdit from "./FinalEdit";
 
 function SettingsPage({
   setActiveHelp,
@@ -23,153 +25,65 @@ function SettingsPage({
 }) {
 
  
-  console.log("uerhistory", userHistory);
   const [selected, setSelected] = useState(0);
   const [loaded, setLoaded] = useState(true);
   const [products, setProducts] = useState();
+  const[isLoading,setIsLoading]=useState(false)
+  const[isShowEdit,setisShowEdit]=useState(false)
+  const [productdata,setProductData]=useState()
+  const[dataArray,setdataArray]=useState([])
   const app = useAppBridge();
   const [isdata, setisdata] = useState(true);
-  const arr = [
-    {
+  var multipackid;
+  var multipackname;
+  var multipackimg;
+  var multipackquantity;
+  var multipack_varient_id;
+  var multipackSku;
+  var multipackprice;
+  var product_varient_sku;
 
-      id: 1,
-      multipack_name: '"character Choices" Argus Poster Combo Pack,-8Packs',
-      multipack_id: 2147483647,
-      multipack_price: 144,
-      multipack_img:
-        "https://cdn.shopify.com/s/files/1/0553/1690/6057/products/ESTEPTA67913.jpg?v=1656081541",
-      multipack_qty: 7,
-      multipack_varient_id: "40047526379593",
-      multipack_varient_sku: "TEPTA67913-7Packs",
-      multipack_varient_barcode: "078628679137",
-      multipack_varient_weight: "5.6088",
-      product_id: 2147483647,
-      product_varient_id: 2147483647,
-      created_at: "toady",
-      updated_at: "yesterday",
-      product_varient_quantity: "54",
-      product_varient_sku: "Sku",
-      setSchedule: 0,
-    },
+
+  useEffect(()=>{
+    let data= store.get('orderdata')
+    setdataArray(data)
+
+    if(dataArray.length>0){
+      setisdata(true)
+    }else{
+      setisdata(false)
+    }
+
+  },[])
+  
+
+
+
+
+  const arr = [
+
     {
-      id: 2,
-      multipack_name: '"character Choices" Argus Poster Combo Pack,-6Packs',
-      multipack_id: 2147483647,
-      multipack_price: 108,
-      multipack_img:
-        "https://cdn.shopify.com/s/files/1/0553/1690/6057/products/ESTEPTA67913.jpg?v=1656081541",
-      multipack_qty: 9,
-      multipack_varient_id: "40047534014537",
-      multipack_varient_sku: "TEPTA67913-6Packs",
-      multipack_varient_barcode: "078628679137",
-      multipack_varient_weight: "4.2066",
-      product_id: 2147483647,
-      product_varient_id: 2147483647,
-      created_at: "toady",
-      updated_at: "yesterday",
-      product_varient_quantity: "54",
-      product_varient_sku: "Sku",
-      setSchedule: 0,
-    },
-    {
-      id: 3,
-      multipack_name: '"character Choices" Argus Poster Combo Pack,-10Packs',
-      multipack_id: 2147483647,
-      multipack_price: 97,
-      multipack_img:
-        "https://cdn.shopify.com/s/files/1/0553/1690/6057/products/ESTEPTA67913.jpg?v=1656081541",
-      multipack_qty: 5,
-      multipack_varient_id: "40047546073161",
-      multipack_varient_sku: "TEPTA67913-10Packs",
-      multipack_varient_barcode: "078628679137",
-      multipack_varient_weight: "7.010999999999999",
-      product_id: 2147483647,
-      product_varient_id: 2147483647,
-      created_at: "toady",
-      updated_at: "yesterday",
-      product_varient_quantity: "54",
-      product_varient_sku: "Sku",
-      setSchedule: 0,
-    },
-    {
-      id: 4,
-      multipack_name: '"character Choices" Argus Poster Combo Pack,-10Packs',
-      multipack_id: 2147483647,
-      multipack_price: 97,
-      multipack_img:
-        "https://cdn.shopify.com/s/files/1/0553/1690/6057/products/ESTEPTA67913.jpg?v=1656081541",
-      multipack_qty: 5,
-      multipack_varient_id: "40047546105929",
-      multipack_varient_sku: "TEPTA67913-10Packs",
-      multipack_varient_barcode: "078628679137",
-      multipack_varient_weight: "7.010999999999999",
-      product_id: 2147483647,
-      product_varient_id: 2147483647,
-      created_at: "toady",
-      updated_at: "yesterday",
-      product_varient_quantity: "54",
-      product_varient_sku: "Sku",
-      setSchedule: 0,
-    },
-    {
-      id: 5,
-      multipack_name: '"character Choices" Argus Poster Combo Pack,-4Packs',
-      multipack_id: 2147483647,
-      multipack_price: 243,
-      multipack_img:
-        "https://cdn.shopify.com/s/files/1/0553/1690/6057/products/ESTEPTA67913.jpg",
-      multipack_qty: 14,
-      multipack_varient_id: "40047554265161",
-      multipack_varient_sku: "TEPTA67913-4Packs",
-      multipack_varient_barcode: "078628679137",
-      multipack_varient_weight: "2.8044",
-      product_id: 2147483647,
-      product_varient_id: 2147483647,
-      created_at: "toady",
-      updated_at: "yesterday",
-      product_varient_quantity: "54",
-      product_varient_sku: "Sku",
-      setSchedule: 0,
-    },
-    {
-      id: 6,
-      multipack_name: '"character Choices" Argus Poster Combo Pack,-2Packs',
-      multipack_id: 2147483647,
-      multipack_price: 486,
-      multipack_img:
-        "https://cdn.shopify.com/s/files/1/0553/1690/6057/products/ESTEPTA67913.jpg",
-      multipack_qty: 27,
-      multipack_varient_id: "40047557967945",
-      multipack_varient_sku: "TEPTA67913-2Packs",
-      multipack_varient_barcode: "078628679137",
-      multipack_varient_weight: "1.4022",
-      product_id: 2147483647,
-      product_varient_id: 2147483647,
-      created_at: "toady",
-      updated_at: "yesterday",
-      product_varient_quantity: "54",
-      product_varient_sku: "Sku",
-      setSchedule: 0,
-    },
-    {
-      id: 7,
+      id: 8,
       multipack_name:
-        '"sign Here" Page Flag Dispenser Refill Rolls, 0.56" Wide, Red, 120-roll, 2 Rolls-pack-10Packs',
+        '"sign Here" Page Flag Dispenser Refill Rolls, 0.56" Wide, Red, 120-roll, 2 Rolls-pack-5Packs',
       multipack_id: 2147483647,
-      multipack_price: 214,
+      multipack_price: 425,
       multipack_img:
         "https://cdn.shopify.com/s/files/1/0553/1690/6057/products/ESRTG93022.jpg",
-      multipack_qty: 22,
-      multipack_varient_id: "40047617638473",
-      multipack_varient_sku: "RTG93022-10Packs",
+      multipack_qty: 5,
+      multipack_varient_id: "40052875165769",
+      multipack_varient_sku: "RTG93022-5Packs",
       multipack_varient_barcode: "012534930227",
-      multipack_varient_weight: "1.19",
+      multipack_varient_weight: "5.236",
       product_id: 2147483647,
       product_varient_id: 2147483647,
       created_at: "toady",
       updated_at: "yesterday",
       product_varient_quantity: "222",
-      product_varient_sku: "Sku",
+      product_varient_sku: "RTG93022",
+      product_varient_weight:"3",
+      product_varient_price:34,
+      product_name:"sign Here Page Flag Dispenser Refill Rolls, 0.56 Wide, Red, 120-roll, 2 Rolls-pack",
       setSchedule: 0,
     },
     {
@@ -190,15 +104,22 @@ function SettingsPage({
       created_at: "toady",
       updated_at: "yesterday",
       product_varient_quantity: "222",
-      product_varient_sku: "RTG93022-5Packs",
+      product_varient_sku: "RTG93022",
+      product_varient_weight:"3",
+      product_varient_price:34,
+      product_name:"sign Here Page Flag Dispenser Refill Rolls, 0.56 Wide, Red, 120-roll, 2 Rolls-pack",
       setSchedule: 0,
     },
   ];
+ 
+
+
+  let inut={}
  const handleDeleteButton=async(input)=>{
-  console.log("hello")
+ 
   console.log(input.value.multipack_id)
   const multipackid=input.value.multipack_id
-
+  setIsLoading(true)
   const token = await getSessionToken(app);
   const res = await fetch("/deleteProduct", {
     method: "POST",
@@ -211,15 +132,60 @@ function SettingsPage({
       "Content-type": "text/plain",
     },
   });
+  dataArray = arr.filter(person => person. multipack_id != input.value.multipack_id);
 
 
-  
+  store.set('orderdata',dataArray)
+
+
+setIsLoading(false)
+
+
+  alert("Multipack Deleted Successfully")
  }
 
 const handleEditButton=(input)=>{
+  console.log(input.value.multipack_id);
+  // alert("hello")
+  multipackname=input.value.multipack_name;
+  multipackid=input.value.multipack_id
+  multipackimg=input.value.multipack_img
+  multipackquantity=input.value.multipack_qty;
+  multipack_varient_id=input.value.multipack_varient_id;
+  multipackSku=input.value.multipack_varient_sku;
+  multipackprice=input.value.multipack_price;
+  product_varient_sku=input.value.product_varient_sku;
+
+  
+inut=input.value;
+setProductData(input.value)
+
+  setIsLoading(true)
+  console.log("why its not loading")
+  setisShowEdit(true);
+  setIsLoading(false)
 
 
 
+
+
+}
+if(isShowEdit==true){
+  return(
+    <FinalEdit
+    productdata={productdata}
+    inut={inut}
+    multipack_name={multipackname}
+    multipackid={multipackid}
+    multipackimg={multipackimg}
+    multipackquantity={multipackquantity}
+    multipack_varient_id={multipack_varient_id}
+    multipackSku={multipackSku}
+    multipackprice={multipackprice}
+    product_varient_sku={product_varient_sku}
+    ></FinalEdit>
+  )
+ 
 }
 
 
@@ -235,8 +201,15 @@ const handleEditButton=(input)=>{
       ></TopHeader>
 
       <div>
+      {isLoading ? (
+        <div>
+          <LoadingSpinner></LoadingSpinner>
+        </div>
+      ) : (
+        <div></div>
+      )}
         {isdata == true &&
-          arr.map((value, index) => (
+          dataArray.map((value, index) => (
             <div className="product-list">
               <div className="product-list-div">
                 <div className="product-list-img">
@@ -257,6 +230,11 @@ const handleEditButton=(input)=>{
               </div>
             </div>
           ))}
+
+          {isdata==false &&
+          <div>
+            No data
+            </div>}
       </div>
     </div>
   );

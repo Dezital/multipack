@@ -28,15 +28,20 @@ const crypto = require("crypto");
 let newhost;
 
 const pool_multipack = mysql2.createPool({
-  host: "localhost",
-  user: "shan",
-  password: "",
+  connectionLimit: 100000,
+  user : "doadmin",
+  password : "rjZoyWV7E3gDRJJe",
+  host: "dbaas-db-8225521-do-user-10888552-0.b.db.ondigitalocean.com",
+  port :"25060",
   database: "multipack_creator",
 });
+
 const con = mysql2.createConnection({
-  host: "localhost",
-  user: "shan",
-  password: "",
+  connectionLimit: 100,
+  user : "doadmin",
+  password : "rjZoyWV7E3gDRJJe",
+  host: "dbaas-db-8225521-do-user-10888552-0.b.db.ondigitalocean.com",
+  port :"25060",
   database: "multipack_creator",
 });
 
@@ -142,9 +147,9 @@ app.prepare().then(async () => {
     })
   );
   server.use(
-    
+
     createShopifyAuth({
-      accessMode: "offline",
+
       async afterAuth(ctx) {
         // Access token and shop available in ctx.state.shopify
         const { shop, accessToken, scope } = ctx.state.shopify;
@@ -182,7 +187,7 @@ app.prepare().then(async () => {
 
         // Redirect to app with shop parameter upon auth
         ctx.redirect(`/install/auth?shop=${shop}&host=${host}`);
-        
+
         // console.log(ctx);
         // await getSubscriptionUrl(ctx);
       },
@@ -198,10 +203,17 @@ app.prepare().then(async () => {
   };
 
   router.post("/createMultipack", async (ctx) => {
-   
+
     const session = await Shopify.Utils.loadCurrentSession(ctx.req, ctx.res);
     const shop = session.shop;
-    const multipackname = JSON.parse(ctx.request.body).multipackName;
+    const product_name=JSON.parse(ctx.request.body).product_name;
+    const product_varient_price=JSON.parse(ctx.request.body).product_varient_price;
+    const product_varient_weight=JSON.parse(ctx.request.body).product_varient_weight;
+    let multipackn = JSON.parse(ctx.request.body).multipackName;
+    multipackn = multipackn.replace(/[&'":*?<>{}]/g, '');
+    const multipackname=multipackn;
+  
+
     const multipackquantity = JSON.parse(ctx.request.body).multipackquantity;
     const multipackprice = JSON.parse(ctx.request.body).multipackprice;
     const multipackdiscription = JSON.parse(ctx.request.body)
@@ -220,8 +232,10 @@ app.prepare().then(async () => {
     const OrignalProductId = JSON.parse(ctx.request.body).OrignalProductId;
     const OrginalProductVarientId = JSON.parse(ctx.request.body)
       .OrginalProductVarientId;
+    const OriginalProductSku=JSON.parse(ctx.request.body)
+    .OriginalProductSku;
 
-    let Newmultipackid;
+    var Newmultipackid;
     let NewProductVarientId;
     let NewProductVarinetInventoryId;
     let StoreLocaction;
@@ -258,7 +272,7 @@ app.prepare().then(async () => {
                   price: multipackprice,
                   fulfillment_service: "manual",
                   inventory_management: "shopify",
-                  sku: `${multipackWeight}`,
+                  sku: `${multipackSKU}`,
                   weight: `${multipackWeight}`,
                 },
               },
@@ -337,24 +351,8 @@ app.prepare().then(async () => {
     pool_multipack.getConnection((err, connection) => {
       if (err) throw err;
       // console.log(`connected as id ${connection.threadId}`);
-      let stmt = `INSERT INTO multipack(
-        multipack_name,
-        multipack_id,
-        multipack_price,
-        multipack_img,
-        multipack_qty,
-        multipack_varient_id,
-        multipack_varient_sku,
-        multipack_varient_barcode,
-        multipack_varient_weight,
-        product_id,
-        product_varient_id,
-        product_varient_quantity,
-        product_varient_sku,
-        created_at,
-        updated_at
-        )
-       VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+      let stmt = `INSERT INTO multipack(multipack_name,multipack_id,multipack_price,multipack_img,multipack_qty,multipack_varient_id,multipack_varient_sku,multipack_varient_barcode,multipack_varient_weight,product_id,product_varient_id,product_varient_quantity,product_varient_sku,created_at,updated_at,product_name,product_varient_price,product_varient_weight)
+       VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?.?,?,?)`;
       let todo = [
         multipackname,
         Newmultipackid,
@@ -368,9 +366,12 @@ app.prepare().then(async () => {
         OrignalProductId,
         multipackbarcode,
         OriginalProductquantity,
-        multipackSKU,
+        OriginalProductSku,
         "toady",
         "yesterday",
+        product_name,
+        product_varient_price,
+        product_varient_weight
       ];
 
       // execute the insert statment
@@ -458,6 +459,157 @@ app.prepare().then(async () => {
       console.log("Err in cath", err);
     }
   });
+
+  router.post("/updateProduct", async (ctx) => {
+    const session = await Shopify.Utils.loadCurrentSession(ctx.req, ctx.res);
+    const shop = session.shop;
+    const multipackName = JSON.parse(ctx.request.body).multipackName;
+    const multipackquantity = JSON.parse(ctx.request.body).multipackquantity;
+    const multipackprice = JSON.parse(ctx.request.body).multipackprice;
+    const multipackSku = JSON.parse(ctx.request.body).multipackSku;
+    const multipackweight = JSON.parse(ctx.request.body).multipackweight;
+    const multipackid = JSON.parse(ctx.request.body).multipackid;
+    const multipackvarientid = JSON.parse(ctx.request.body).multipackvarientid;
+
+
+    var StoreLocaction;
+    var NewProductVarinetInventoryId;
+
+    try {
+      const client = new Shopify.Clients.Rest(
+        session.shop,
+        session.accessToken
+      );
+
+      await client
+        .put({
+          path: `products/${multipackid}`,
+          data: {
+            product: {
+              title: multipackName,
+            },
+            type: DataType.JSON,
+          },
+        })
+        .then(({ body }) => {
+
+          let newvariable = body.product;
+          Newmultipackid = newvariable.id;
+
+          NewProductVarinetInventoryId =newvariable.variants[0].inventory_item_id;
+
+          ctx.body = {
+            status: "OK",
+          };
+          ctx.status = 200;
+        })
+        .catch((err) => console.log(err));
+    } catch (err) {
+      console.log("Err in cath", err);
+    }
+
+    try {
+      const client = new Shopify.Clients.Rest(
+        session.shop,
+        session.accessToken
+      );
+
+      await client
+        .put({
+          path: `variants/${multipackvarientid}`,
+          data: {
+            variant: {
+              id: multipackvarientid,
+              price: multipackprice,
+              sku: `${multipackSku}`,
+              weight: `${multipackweight}`,
+            },
+          },
+          type: DataType.JSON,
+        })
+        .then(({ body }) => {
+          ctx.body = {
+            status: "OK",
+          };
+          ctx.status = 200;
+        })
+        .catch((err) => console.log(err));
+    } catch (err) {
+      console.log("Err in cath", err);
+    }
+
+    
+    try {
+      const client = new Shopify.Clients.Rest(
+        session.shop,
+        session.accessToken
+      );
+
+      await client
+        .get({
+          path: `locations`,
+        })
+        .then(async({ body }) => {
+          console.log("response body", body.locations[0].id);
+          var locationid = body.locations[0].id;
+          StoreLocaction = locationid;
+          console.log("locationid", locationid);
+        await client.post({
+          path: `inventory_levels/set`,
+          data: {
+            location_id: StoreLocaction,
+            inventory_item_id: NewProductVarinetInventoryId,
+            available: multipackquantity,
+          },
+          type: DataType.JSON,
+        }).then(({body})=>{
+
+        }).catch((err) => console.log(err))
+
+
+          ctx.body = {
+            status: "OK",
+          };
+          ctx.status = 200;
+        })
+        .catch((err) => console.log(err));
+    } catch (err) {
+      console.log("Err in cath", err);
+    }
+
+   
+
+    pool_multipack.getConnection((err, connection) => {
+      if (err) throw err;
+      // console.log(`connected as id ${connection.threadId}`);
+      let stmt = `UPDATE  multipack  SET multipack_name =?, multipack_price = ?, multipack_qty=? multipack_varient_sku =?, multipack_varient_weight =?, WHERE 
+      multipack_id=?`;
+      let todo = [
+        multipackName,
+        multipackprice,
+        multipackquantity,
+        multipackSku,
+        multipackweight,
+        multipackid
+      ];
+
+      // execute the insert statment
+      connection.query(stmt, todo, (err, results, fields) => {
+        if (!err) {
+          console.log("results in updating product", results);
+        } else {
+          console.log("error in submitting orders", err);
+        }
+
+        // console.log(item.name);
+
+        connection.release(); // return the connection to pool
+      });
+
+      //insert into shipping
+    });
+
+  });
   router.post("/updatePartialTags", async (ctx) => {
     const session = await Shopify.Utils.loadCurrentSession(ctx.req, ctx.res);
     const shop = session.shop;
@@ -527,7 +679,7 @@ app.prepare().then(async () => {
   router.get("/products", async (ctx) => {
     const session = await Shopify.Utils.loadCurrentSession(ctx.req, ctx.res);
     const shop = session.shop;
-  
+
     let productList = [];
     try {
       const client = new Shopify.Clients.Rest(
@@ -675,12 +827,12 @@ app.prepare().then(async () => {
     ctx.status = 200;
   });
 
-  cron.schedule("1 * * * * *", function () {
-    console.log("running a task");
-    const shop = "scanandfulfill.myshopify.com";
-    const session = await Shopify.Utils.loadOfflineSession();
+  // cron.schedule("1 * * * * *", function () {
+  //   console.log("running a task");
+  //   const shop = "scanandfulfill.myshopify.com";
+  //   // const session = await Shopify.Utils.loadOfflineSession();
 
-  });
+  // });
 
   // For Adding settings
 
