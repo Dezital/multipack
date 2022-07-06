@@ -52,7 +52,7 @@ function FinalEdit({
     setUpdatedMultipacksku(`${productsku}`)
 
     let totalqty=productdata.product_varient_quantity/newmultipackqty;
-   totalqty= Math.ceil(totalqty)
+   totalqty= Math.floor(totalqty)
     setUpdatedMultipackQuantity(`${totalqty}`)
 
     let newname=productdata.product_name+`-${newmultipackqty}packs`

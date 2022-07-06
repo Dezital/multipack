@@ -40,7 +40,7 @@ function PackCreationPage(productdata,{setLoadingd}) {
 
   const handleFomSubmission = () => {
     let nw = productdata.productdata.variants[0].inventoryQuantity / quantityofMultipack;
-    nw= Math.ceil(nw);
+    nw= Math.floor(nw);
    
     settoatlMultipackQuantity(`${nw}`)
     let multipacktitle = productdata.productdata.title + `-${quantityofMultipack}Packs`;
