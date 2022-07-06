@@ -146,7 +146,7 @@ function FinalProductShow({
 
                   <div className="Input-fieds-child">
                     <TextField
-                      value={multipackprice}
+                      value={multipackquantity}
                       onChange={() => {
                         "";
                       }}
