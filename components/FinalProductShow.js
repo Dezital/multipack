@@ -57,7 +57,7 @@ function FinalProductShow({
     let multipackBarcode = productdata.productdata.variants[0].barcode;
 
     let multipackweightUnit = productdata.productdata.variants[0].weightUnit;
-      let product_name = productdata.productdata.variants[0].title;
+      let product_name = productdata.productdata.title;
       let product_varient_price = productdata.productdata.variants[0].price;
       let product_varient_weight = productdata.productdata.variants[0].weight;
       let OriginalProductSku =productdata.productdata.variants[0].sku;
