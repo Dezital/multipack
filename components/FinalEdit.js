@@ -27,7 +27,7 @@ function FinalEdit({
    
   
   const [isLoading, setIsLoading] = useState(false);
-  const [updatedmultipackquantity,setUpdatedMultipackQuantity]=useState(`${productdata.multipack_qty}`);
+  const [updatedmultipackquantity,setUpdatedMultipackQuantity]=useState(`${productdata.newtotal_qty}`);
   const [updatedmultipackname,setUpdatedMultipackname]=useState(productdata.multipack_name);
   const [updatedmultipacksku,setUpdatedMultipacksku]=useState(`${productdata.multipack_varient_sku}`)
   const [updatedmultipackprice,setUpdatedMultipackprice]=useState(`${productdata.multipack_price}`);

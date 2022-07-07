@@ -193,7 +193,7 @@ function HistoryComponents() {
                     Price:{value.multipack_price}
                   </div>
                   <div className="orderid-text">
-                    Quantity:{value.multipack_qty}
+                    Quantity:{value.newtotal_qty}
                   </div>
                 </div>
                 <div className="product-list-button">
