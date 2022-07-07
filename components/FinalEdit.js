@@ -17,12 +17,15 @@ import {
 import { getSessionToken } from "@shopify/app-bridge-utils";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import LoadingSpinner from "./LoadingSpinner";
+import store from "store-js";
 
 function FinalEdit({
     productdata,
+    setisShowEdit
   
 }) {
    
+  
   const [isLoading, setIsLoading] = useState(false);
   const [updatedmultipackquantity,setUpdatedMultipackQuantity]=useState(`${productdata.multipack_qty}`);
   const [updatedmultipackname,setUpdatedMultipackname]=useState(productdata.multipack_name);
@@ -58,8 +61,6 @@ function FinalEdit({
     let newname=productdata.product_name+`-${newmultipackqty}packs`
     setUpdatedMultipackname(newname)
 
-
-  
     isShowSubmitBtn(true)
 
   };
@@ -68,16 +69,22 @@ function FinalEdit({
   const handleProductuplaod =async ()=>{
 
     setIsLoading(true);
+
     let multipackName=updatedmultipackname;
-    let multipackquantity=updatedmultipackquantity;
+    let multipackquantity=newmultipackqty;
     let multipackprice=updatedmultipackprice;
     let multipackSku=updatedmultipacksku;
     let multipackweight=updatemultipackWeight;
     let multipackid=productdata.multipack_id;
     let multipackvarientid=productdata.multipack_varient_id;
+    let totalqunatityofmultipacks=updatedmultipackquantity;
+    console.log("sizeof multipack",multipackquantity);
+    console.log("multipack quantity",updatedmultipackquantity)
+    
+
 
     
-    console.log("i am good");
+   
     const token = await getSessionToken(app);
     const res = await fetch("/updateProduct", {
       method: "POST",
@@ -88,13 +95,38 @@ function FinalEdit({
         multipackSku,
         multipackweight,
         multipackid,
-        multipackvarientid
+        multipackvarientid,
+        totalqunatityofmultipacks
       }),
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-type": "text/plain",
       },
     });
+
+
+    const respo = await fetch("/getProrductsList", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-type": "text/plain",
+      },
+    });
+
+
+    const resp=await  respo.json();
+   
+    
+    
+    // console.log('3434')
+    if (resp.status == "OK") {
+      // console.log(resp);
+      // setuserHistoryData(resp.data);
+      
+      store.set("orderdata",resp.data)
+    }
+    console.log("",setisShowEdit)
+    setisShowEdit(false)
 
     setIsLoading(false);
    alert("Your Product updated successfully")

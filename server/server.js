@@ -437,31 +437,34 @@ app.prepare().then(async () => {
           };
           ctx.status = 200;
 
-          pool_multipack.getConnection((err, connection) => {
-            if (err) throw err;
-            // console.log(`connected as id ${connection.threadId}`);
-            let stmt = `DELETE * FROM multipack where multipack_id=${multipackid}`;
-
-            // execute the insert statment
-            connection.query(stmt, todo, (err, results, fields) => {
-              if (!err) {
-                console.log("results in delete", results);
-              } else {
-                console.log("error in submitting orders", err);
-              }
-
-              // console.log(item.name);
-
-              connection.release(); // return the connection to pool
-            });
-
-            //insert into shipping
-          });
+       
         })
         .catch((err) => console.log(err));
     } catch (err) {
       console.log("Err in cath", err);
     }
+
+    pool_multipack.getConnection((err, connection) => {
+      if (err) throw err;
+      // console.log(`connected as id ${connection.threadId}`);
+      let stmt = `DELETE FROM multipack where multipack_id=?`;
+      let todo = [multipackid];
+
+      // execute the insert statment
+      connection.query(stmt,todo, (err, results, fields) => {
+        if (!err) {
+          console.log("results in delete", results);
+        } else {
+          console.log("error in submitting orders", err);
+        }
+
+        // console.log(item.name);
+
+        connection.release(); // return the connection to pool
+      });
+
+      //insert into shipping
+    });
   });
 
   router.post("/updateProduct", async (ctx) => {
@@ -476,7 +479,9 @@ app.prepare().then(async () => {
     const multipackvarientid = JSON.parse(ctx.request.body).multipackvarientid;
 
     const totalqunatityofmultipacks= JSON.parse(ctx.request.body).totalqunatityofmultipacks;
+    var Newmultipackid;
 
+    console.log("total qty of multipack",totalqunatityofmultipacks)
 
     var StoreLocaction;
     var NewProductVarinetInventoryId;
@@ -486,22 +491,24 @@ app.prepare().then(async () => {
         session.shop,
         session.accessToken
       );
+      console.log("multipack is",multipackName)
+      
+      type: DataType.JSON,
 
       await client
         .put({
           path: `products/${multipackid}`,
           data: {
             product: {
-              title: multipackName,
+              title: `${multipackName}`,
             },
-            type: DataType.JSON,
           },
+          type: DataType.JSON,
         })
+
         .then(({ body }) => {
 
           let newvariable = body.product;
-          Newmultipackid = newvariable.id;
-
           NewProductVarinetInventoryId =newvariable.variants[0].inventory_item_id;
 
           ctx.body = {
@@ -534,6 +541,7 @@ app.prepare().then(async () => {
           type: DataType.JSON,
         })
         .then(({ body }) => {
+          // console.log("here is response for clinet",body)
           ctx.body = {
             status: "OK",
           };
@@ -544,7 +552,7 @@ app.prepare().then(async () => {
       console.log("Err in cath", err);
     }
 
-    
+
     try {
       const client = new Shopify.Clients.Rest(
         session.shop,
@@ -554,24 +562,13 @@ app.prepare().then(async () => {
       await client
         .get({
           path: `locations`,
+        
         })
         .then(async({ body }) => {
           console.log("response body", body.locations[0].id);
           var locationid = body.locations[0].id;
           StoreLocaction = locationid;
           console.log("locationid", locationid);
-        await client.post({
-          path: `inventory_levels/set`,
-          data: {
-            location_id: StoreLocaction,
-            inventory_item_id: NewProductVarinetInventoryId,
-            available: totalqunatityofmultipacks,
-          },
-          type: DataType.JSON,
-        }).then(({body})=>{
-
-        }).catch((err) => console.log(err))
-
 
           ctx.body = {
             status: "OK",
@@ -583,14 +580,53 @@ app.prepare().then(async () => {
       console.log("Err in cath", err);
     }
 
+
+    console.log("id of location",StoreLocaction)
+    console.log("id of new product inventory",NewProductVarinetInventoryId)
+    console.log("id totoal available qty",totalqunatityofmultipacks)
+
+    
+    try {
+      const client = new Shopify.Clients.Rest(
+        session.shop,
+        session.accessToken
+      );
+
+      await client
+      .post({
+        path: `inventory_levels/set`,
+        data: {
+          location_id: StoreLocaction,
+          inventory_item_id: NewProductVarinetInventoryId,
+          available: totalqunatityofmultipacks,
+        },
+        type: DataType.JSON,
+      })
+        .then(({ body }) => {
+          console.log("response body", {body});
+         
+
+        }).catch((err) => console.log(err))
+          ctx.body = {
+            status: "OK",
+          };
+          ctx.status = 200;
+    } catch (err) {
+      console.log("Err in cath", err);
+    }
+
+
+
+   
    
 
     pool_multipack.getConnection((err, connection) => {
       if (err) throw err;
       // console.log(`connected as id ${connection.threadId}`);
-      let stmt = `UPDATE  multipack  SET multipack_name =?, multipack_price = ?, multipack_qty=? multipack_varient_sku =?, multipack_varient_weight =?, WHERE 
+      let stmt = `UPDATE  multipack  SET newtotal_qty=?,multipack_name =?, multipack_price = ?, multipack_qty=?, multipack_varient_sku =?, multipack_varient_weight =? WHERE 
       multipack_id=?`;
       let todo = [
+        totalqunatityofmultipacks,
         multipackName,
         multipackprice,
         multipackquantity,

@@ -17,6 +17,7 @@ import {
 import { getSessionToken } from "@shopify/app-bridge-utils";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import LoadingSpinner from "./LoadingSpinner";
+import store from "store-js";
 
 function FinalProductShow({
   multipackName,
@@ -97,6 +98,27 @@ function FinalProductShow({
         "Content-type": "text/plain",
       },
     });
+
+    const respo = await fetch("/getProrductsList", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-type": "text/plain",
+      },
+    });
+
+
+    const resp=await  respo.json();
+   
+    
+    
+    // console.log('3434')
+    if (resp.status == "OK") {
+      // console.log(resp);
+      // setuserHistoryData(resp.data);
+      
+      store.set("orderdata",resp.data)
+    }
 
     setIsLoading(false);
    alert("Your Product created Successfully")
