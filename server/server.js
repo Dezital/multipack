@@ -204,8 +204,9 @@ app.prepare().then(async () => {
 
   router.post("/createMultipack", async (ctx) => {
 
-    const session = await Shopify.Utils.loadCurrentSession(ctx.req, ctx.res);
-    const shop = session.shop;
+      const shop = "scanandfulfill.myshopify.com";
+      const session = await Shopify.Utils.loadOfflineSession(shop);
+ 
     const product_name=JSON.parse(ctx.request.body).product_name;
     const product_varient_price=JSON.parse(ctx.request.body).product_varient_price;
     const product_varient_weight=JSON.parse(ctx.request.body).product_varient_weight;
@@ -418,8 +419,8 @@ app.prepare().then(async () => {
   });
 
   router.post("/deleteProduct", async (ctx) => {
-    const session = await Shopify.Utils.loadCurrentSession(ctx.req, ctx.res);
-    const shop = session.shop;
+    const shop = "scanandfulfill.myshopify.com";
+      const session = await Shopify.Utils.loadOfflineSession(shop);
     const multipackid = JSON.parse(ctx.request.body).multipackid;
     try {
       const client = new Shopify.Clients.Rest(
@@ -468,8 +469,8 @@ app.prepare().then(async () => {
   });
 
   router.post("/updateProduct", async (ctx) => {
-    const session = await Shopify.Utils.loadCurrentSession(ctx.req, ctx.res);
-    const shop = session.shop;
+    const shop = "scanandfulfill.myshopify.com";
+    const session = await Shopify.Utils.loadOfflineSession(shop);
     const multipackName = JSON.parse(ctx.request.body).multipackName;
     const multipackquantity = JSON.parse(ctx.request.body).multipackquantity;
     const multipackprice = JSON.parse(ctx.request.body).multipackprice;
