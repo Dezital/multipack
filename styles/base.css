@@ -392,3 +392,64 @@
 .button-div{
   flex:8
 }
+.Multipack-table-list-name:hover{
+  text-decoration: underline;
+}
+.div-prod-table{
+  display: flex;
+  
+  text-align: left;
+  padding: 0.8rem 1.6rem;
+  box-shadow: 0 -0.1rem 0 0 var(--p-divider, #dfe3e8);
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 2rem;
+  text-transform: none;
+  text-transform: initial;
+  letter-spacing: normal;
+  letter-spacing: initial;
+
+}
+.div-prod-checkbox{
+  flex:0.3;
+}
+.div-prod-img{
+  flex:1.5
+
+}
+.div-prod-title{
+  flex: 5.2;
+  align-content: center;
+  justify-content: center;
+  align-self: center;
+
+}
+.div-prod-price{
+  flex:1.5;
+  align-content: center;
+  justify-content: center;
+  align-self: center;
+  overflow: hidden;
+}
+.div-prod-table:hover{
+ background-color:  rgb(237, 244, 254);
+}
+.div-prod-table::after{
+  box-sizing: border-box;
+
+}
+.div-prod-table::before{
+  box-sizing: border-box;
+  
+}
+.div-title-name:hover{
+  text-decoration: underline;
+  cursor: pointer;
+
+}
+.isTrue-div{
+  display: flex;
+}
+.isTrue-div-item{
+  margin-right: 10px;
+}
