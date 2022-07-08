@@ -1,4 +1,4 @@
-import { Button, Card, Tabs } from "@shopify/polaris";
+import { Button, Card, Tabs, Thumbnail } from "@shopify/polaris";
 import React, { useEffect, useState } from "react";
 import { useCallback } from "react";
 import { MobileBackArrowMajor } from "@shopify/polaris-icons";
@@ -13,6 +13,7 @@ import LoadingSpinner from "./LoadingSpinner";
 
 import TopHeader from "./TopHeader";
 import FinalEdit from "./FinalEdit";
+import NewHistoryTest from "./NewHistoryTest";
 
 function HistoryComponents() {
   const [selected, setSelected] = useState(0);
@@ -37,37 +38,11 @@ function HistoryComponents() {
   useEffect(() => { 
   }, []);
 
-  const handleDeleteButton = async (input) => {
-    console.log(input.value.multipack_id);
-    const multipackid = input.value.multipack_id;
-    setIsLoading(true);
-    const token = await getSessionToken(app);
-    const res = await fetch("/deleteProduct", {
-      method: "POST",
-      body: JSON.stringify({
-        multipackid,
-      }),
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-type": "text/plain",
-      },
-    });
-   let data = dataArray.filter(
-      (person) => person.multipack_id != input.value.multipack_id
-    );
-    setdataArray(data)
 
-    store.set("orderdata", data);
-
-    setIsLoading(false);
-
-    alert("Multipack Deleted Successfully");
-
-  };
 
   const handleEditButton = (input) => {
     console.log(input.value.multipack_id);
-    // alert("hello")
+    
     multipackname = input.value.multipack_name;
     multipackid = input.value.multipack_id;
     multipackimg = input.value.multipack_img;
@@ -180,44 +155,48 @@ function HistoryComponents() {
         ) : (
           <div></div>
         )}
-        {isdata == true &&
-          dataArray.map((value, index) => (
-            <div className="product-list">
-              <div className="product-list-div">
-                <div className="product-list-img">
-                  <img className="product-img" src={value.multipack_img} />
-                </div>
-                <div className="product-list-dis">
-                  <div className="title-text">{value.multipack_name}</div>
-                  <div className="orderid-text">
-                    Price:{value.multipack_price}
-                  </div>
-                  <div className="orderid-text">
-                    Quantity:{value.newtotal_qty}
-                  </div>
-                </div>
-                <div className="product-list-button">
-                  <div
-                    role="button"
-                    className="deletebutton"
-                    onClick={() => {
-                      handleDeleteButton({ value });
-                    }}
-                  >
-                    Delete
-                  </div>
-                  <div
-                    role="button"
-                    className="deletebutton"
-                    onClick={() => {
-                      handleEditButton({ value });
-                    }}
-                  >
-                    Edit
-                  </div>
-                </div>
+         
+        <div className="div-prod-table">
+              <div className="div-prod-checkbox"></div>
+              <div className="div-prod-img">
+              {/* <Thumbnail source={value.multipack_img} size="large" alt="Small document" /> */}
+
+              </div>
+              <div className="div-prod-title">
+              <div className="title-text">Name</div>
+              </div>
+              <div className="div-prod-price">
+                Multipack Price
+
+              </div>
+              <div className="div-prod-price">
+              Multipack Quantity
               </div>
             </div>
+        {isdata == true &&
+          dataArray.map((value, index) => (
+            
+            <div className="div-prod-table" role="button"
+            onClick={() => {
+              handleEditButton({ value });
+            }}>
+              <div className="div-prod-checkbox"></div>
+              <div className="div-prod-img">
+              <Thumbnail source={value.multipack_img} size="large" alt="Small document" />
+
+              </div>
+              <div className="div-prod-title div-title-name">
+              <div className="title-text">{value.multipack_name}</div>
+              </div>
+              <div className="div-prod-price">
+              {value.multipack_price}
+
+              </div>
+              <div className="div-prod-price">
+              {value.newtotal_qty}
+              </div>
+            </div>
+            
           ))}
       </div>
     </div>
