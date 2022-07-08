@@ -20,8 +20,8 @@ import { useAppBridge } from "@shopify/app-bridge-react";
 import LoadingSpinner from "./LoadingSpinner";
 import FinalProductShow from "./FinalProductShow";
 
-function PackCreationPage(productdata,{setLoadingd}) {
-  console.log("this is loading",setLoadingd)
+function PackCreationPage({productdata,setShowSelectedProduct}) {
+  
   const [orders, SetOrders] = useState();
   const [quantityofMultipack, setQuantityOfMultipacks] = useState();
   const [quantityofNewProduct, setQuantityofNewProduct] = useState("0");
@@ -39,19 +39,19 @@ function PackCreationPage(productdata,{setLoadingd}) {
   const app = useAppBridge();
 
   const handleFomSubmission = () => {
-    let nw = productdata.productdata.variants[0].inventoryQuantity / quantityofMultipack;
+    let nw = productdata.variants[0].inventoryQuantity / quantityofMultipack;
     nw= Math.floor(nw);
    
     settoatlMultipackQuantity(`${nw}`)
-    let multipacktitle = productdata.productdata.title + `-${quantityofMultipack}Packs`;
+    let multipacktitle = productdata.title + `-${quantityofMultipack}Packs`;
     setMultipackName(multipacktitle);
-    let multipackpaisa = productdata.productdata.variants[0].price * nw;
+    let multipackpaisa = productdata.variants[0].price * nw;
     setMultipackPrice(`${multipackpaisa}`)
-    let multipackdis = productdata.productdata.descriptionHtml;
+    let multipackdis = productdata.descriptionHtml;
     setMultipackDiscription(multipackdis);
-    let multipackwgh = productdata.productdata.variants[0].weight * nw;
+    let multipackwgh = productdata.variants[0].weight * nw;
     setMultipackWeight(`${multipackwgh}`)
-    let mulsku = productdata.productdata.variants[0].sku+`-${quantityofMultipack}Packs`
+    let mulsku = productdata.variants[0].sku+`-${quantityofMultipack}Packs`
     setMultipackSku(`${mulsku}`)
 
     setIShowProductData(true)
@@ -83,29 +83,29 @@ function PackCreationPage(productdata,{setLoadingd}) {
           <div className="product-image-section">
             <img
               className="product-img"
-              src={productdata.productdata.images[0].originalSrc}
+              src={productdata.images[0].originalSrc}
             />
           </div>
         </div>
 
         <div className="product-fullfillment-card-details ">
-          <div className="title-text">{productdata.productdata.title}</div>
+          <div className="title-text">{productdata.title}</div>
 
           <div>
             <div className="orderid-text">
-              SKU: {productdata.productdata.variants[0].sku}
+              SKU: {productdata.variants[0].sku}
             </div>
           </div>
 
           <div>
             <div className="orderid-text">
               Total Quantity:{" "}
-              {productdata.productdata.variants[0].inventoryQuantity}
+              {productdata.variants[0].inventoryQuantity}
             </div>
           </div>
           <div>
             <div className="orderid-text">
-              Product Price: {productdata.productdata.variants[0].price}
+              Product Price: {productdata.variants[0].price}
             </div>
           </div>
         </div>
@@ -133,6 +133,7 @@ function PackCreationPage(productdata,{setLoadingd}) {
 
       {isShowProductData ? (
       <FinalProductShow
+      setShowSelectedProduct={setShowSelectedProduct}
       multipackName={multipackName}
       multipackprice={multipackprice}
       multipackdiscription={multipackdiscription}
@@ -141,7 +142,7 @@ function PackCreationPage(productdata,{setLoadingd}) {
       productdata={productdata}
       quantityofMultipack={quantityofMultipack}
       totalmultipackquantity={totalmultipackquantity}
-      setLoadingd={setLoadingd}
+   
       ></FinalProductShow>
       ) : (
         <div></div>

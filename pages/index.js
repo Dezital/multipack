@@ -36,7 +36,7 @@ import PackCreationPage from "../components/PackCreationPage";
 function index(props) {
   const [orders, SetOrders] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [loadingd, setLoadingd] = useState(false);
+  const [loadingd, setShowSelectedProduct] = useState(false);
 
   const [showOrderDetails, SetShowOrderDetails] = useState(false);
   const [orderid, SetOrderId] = useState(undefined);
@@ -153,7 +153,7 @@ function index(props) {
     setSelected(false);
     setProductData(item)
     setPageToLoad(!pageToLoad);
-    setLoadingd(true);
+    setShowSelectedProduct(true);
   }
   const handleChangeOrder = (value) => {
     setOrderNumber(value);
@@ -282,7 +282,7 @@ function index(props) {
 
         <PackCreationPage
         productdata={productdata}
-        setLoadingd={setLoadingd}
+        setShowSelectedProduct={setShowSelectedProduct}
         
 
         >

@@ -18,6 +18,7 @@ import { getSessionToken } from "@shopify/app-bridge-utils";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import LoadingSpinner from "./LoadingSpinner";
 import store from "store-js";
+import { useShowSuccess } from "./hooks/useShowSuccess";
 
 function FinalProductShow({
   multipackName,
@@ -28,7 +29,7 @@ function FinalProductShow({
   productdata,
   quantityofMultipack,
   totalmultipackquantity,
-  setLoadingd,
+  setShowSelectedProduct
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const app = useAppBridge();
@@ -42,27 +43,27 @@ function FinalProductShow({
   const createMultipack = async () => {
     setIsLoading(true);
     let multipackquantity = quantityofMultipack;
-    let multipackimg = productdata.productdata.images[0].originalSrc.split(
+    let multipackimg = productdata.images[0].originalSrc.split(
       "?v="
     )[0];
-    let OrignalProductId = productdata.productdata.id.replace(
+    let OrignalProductId = productdata.id.replace(
       "gid://shopify/Product/",
       ""
     );
     let OriginalProductquantity =
-      productdata.productdata.variants[0].inventoryQuantity;
+      productdata.variants[0].inventoryQuantity;
       let totalqunatityofmultipacks =totalmultipackquantity;
 
-    let multipackProductType = productdata.productdata.productType;
+    let multipackProductType = productdata.productType;
 
-    let multipackBarcode = productdata.productdata.variants[0].barcode;
+    let multipackBarcode = productdata.variants[0].barcode;
 
-    let multipackweightUnit = productdata.productdata.variants[0].weightUnit;
-      let product_name = productdata.productdata.title;
-      let product_varient_price = productdata.productdata.variants[0].price;
-      let product_varient_weight = productdata.productdata.variants[0].weight;
-      let OriginalProductSku =productdata.productdata.variants[0].sku;
-    let OrginalProductVarientId = productdata.productdata.variants[0].id.replace(
+    let multipackweightUnit = productdata.variants[0].weightUnit;
+      let product_name = productdata.title;
+      let product_varient_price = productdata.variants[0].price;
+      let product_varient_weight = productdata.variants[0].weight;
+      let OriginalProductSku =productdata.variants[0].sku;
+    let OrginalProductVarientId = productdata.variants[0].id.replace(
       "gid://shopify/ProductVariant/",
       ""
     );
@@ -119,9 +120,10 @@ function FinalProductShow({
       
       store.set("orderdata",resp.data)
     }
+    useShowSuccess("Product Created Successfully");
+    setShowSelectedProduct(false)
 
-    setIsLoading(false);
-   alert("Your Product created Successfully")
+   
   };
 
   return (
@@ -216,7 +218,7 @@ function FinalProductShow({
             <div className="Img-border">
               <img
                 className="new-product-img"
-                src={productdata.productdata.images[0].originalSrc}
+                src={productdata.images[0].originalSrc}
               />
             </div>
           </div>

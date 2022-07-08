@@ -41,7 +41,7 @@ function TopHeader({
               handleTabs(2);
             }}
           >
-            History
+            Multi Packs
           </div>
           <div className={`  ${setting ? "border" : ""}`}></div>
         </div>
