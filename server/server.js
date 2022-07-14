@@ -204,7 +204,7 @@ app.prepare().then(async () => {
 
   router.post("/createMultipack", async (ctx) => {
 
-      const shop = "scanandfulfill.myshopify.com";
+      const shop = "workplacecity.myshopify.com";
       const session = await Shopify.Utils.loadOfflineSession(shop);
  
     const product_name=JSON.parse(ctx.request.body).product_name;
@@ -419,7 +419,7 @@ app.prepare().then(async () => {
   });
 
   router.post("/deleteProduct", async (ctx) => {
-    const shop = "scanandfulfill.myshopify.com";
+    const shop = "workplacecity.myshopify.com";
       const session = await Shopify.Utils.loadOfflineSession(shop);
     const multipackid = JSON.parse(ctx.request.body).multipackid;
     try {
@@ -469,7 +469,7 @@ app.prepare().then(async () => {
   });
 
   router.post("/updateProduct", async (ctx) => {
-    const shop = "scanandfulfill.myshopify.com";
+    const shop = "workplacecity.myshopify.com";
     const session = await Shopify.Utils.loadOfflineSession(shop);
     const multipackName = JSON.parse(ctx.request.body).multipackName;
     const multipackquantity = JSON.parse(ctx.request.body).multipackquantity;
@@ -870,12 +870,164 @@ app.prepare().then(async () => {
     ctx.status = 200;
   });
 
-  // cron.schedule("1 * * * * *", function () {
-  //   console.log("running a task");
-  //   const shop = "scanandfulfill.myshopify.com";
-  //   // const session = await Shopify.Utils.loadOfflineSession();
+  cron.schedule("2 * * * *", async () => {
+    console.log("running a task");
+    const shop = "workplacecity.myshopify.com";
+    const session = await Shopify.Utils.loadOfflineSession(shop);
+    console.log("session is");
+    var DatabaseProducts;
+    await con
+      .promise()
+      .query("SELECT * FROM multipack")
+      .then(([rows, fields]) => {
+        DatabaseProducts = rows;
+        // return rows;
+      })
+      .catch(console.log("eee"));
+    var Shopifyproduct = [];
+    console.log("database products", DatabaseProducts);
+    DatabaseProducts.map((value, index) => {
+      console.log("helleo", DatabaseProducts[index].multipack_id)
+     
+      console.log(value.multipack_id);
+      var NewObj = {};
 
-  // });
+      try {
+        const client = new Shopify.Clients.Rest(
+          session.shop,
+          session.accessToken
+        );
+
+        client
+          .get({
+            path: `products/${value.multipack_id}`,
+          })
+          .then(({ body }) => {
+            let count = body.product.variants[0].inventory_quantity;
+            let product_inventory_id =
+              body.product.variants[0].inventory_item_id;
+            NewObj.multipack_inventory_id = product_inventory_id;
+            NewObj.multipackquantity = count;
+            console.log("count of a product", count);
+            client
+              .get({
+                path: `products/${value.product_id}`,
+              })
+              .then(async ({ body }) => {
+                let count = body.product.variants[0].inventory_quantity;
+
+                let product_inventory_id =
+                  body.product.variants[0].inventory_item_id;
+                NewObj.product_inventory_id = product_inventory_id;
+
+                NewObj.multipack_product_quantity = count;
+                console.log(NewObj, "NewObj");
+                if (
+                  NewObj.multipackquantity <
+                    DatabaseProducts[index].newtotal_qty ||
+                  NewObj.multipack_product_quantity <
+                    DatabaseProducts[index].product_varient_quantity
+                ) {
+                  var multipack_diff =
+                    (DatabaseProducts[index].newtotal_qty -
+                      NewObj.multipackquantity) *
+                    DatabaseProducts[index].multipack_qty;
+                  var product_diff =
+                    DatabaseProducts[index].product_varient_quantity -
+                    NewObj.multipack_product_quantity;
+
+                  var product_adjustmentCount =
+                    NewObj.multipack_product_quantity -
+                    (product_diff + multipack_diff);
+                  var multipack_adjustmentCount = Math.floor(
+                    product_adjustmentCount /
+                      DatabaseProducts[index].multipack_qty
+                  );
+                  var StoreLocaction;
+                  await client
+                    .get({
+                      path: `locations`,
+                    })
+                    .then(async ({ body }) => {
+                      console.log("response body", body.locations[0].id);
+                      var locationid = body.locations[0].id;
+                      StoreLocaction = locationid;
+                      console.log("locationid", locationid);
+                      await client
+                        .post({
+                          path: `inventory_levels/set`,
+                          data: {
+                            location_id: StoreLocaction,
+                            inventory_item_id: NewObj.multipack_inventory_id,
+                            available: multipack_adjustmentCount,
+                          },
+                          type: DataType.JSON,
+                        })
+                        .then(({ body }) => {
+                          console.log("response body", { body });
+                        });
+                      await client
+                        .post({
+                          path: `inventory_levels/set`,
+                          data: {
+                            location_id: StoreLocaction,
+                            inventory_item_id: NewObj.product_inventory_id,
+                            available: product_adjustmentCount,
+                          },
+                          type: DataType.JSON,
+                        })
+                        .then(({ body }) => {
+                          pool_multipack.getConnection((err, connection) => {
+                            if (err) throw err;
+                            // console.log(`connected as id ${connection.threadId}`);
+                            let stmt = `UPDATE  multipack  SET newtotal_qty=?, product_varient_quantity=? WHERE 
+                          multipack_id=?`;
+                            let todo = [
+                              multipack_adjustmentCount,
+                              product_adjustmentCount,
+                              DatabaseProducts[index].multipack_id,
+                            ];
+
+                            // execute the insert statment
+                            connection.query(
+                              stmt,
+                              todo,
+                              (err, results, fields) => {
+                                if (!err) {
+                                  console.log(
+                                    "results in updating product",
+                                    results
+                                  );
+                                } else {
+                                  console.log(
+                                    "error in submitting orders",
+                                    err
+                                  );
+                                }
+
+                                // console.log(item.name);
+
+                                connection.release(); // return the connection to pool
+                              }
+                            );
+                          });
+
+                          //
+                        });
+                    });
+                } else {
+                  console.log("no change");
+                }
+              })
+              .catch((err) => console.log(err));
+          })
+          .catch((err) => console.log(err));
+      } catch (err) {
+        console.log("Err in cath", err);
+      }
+    });
+    console.log("after ", Shopifyproduct);
+  });
 
   // For Adding settings
 
